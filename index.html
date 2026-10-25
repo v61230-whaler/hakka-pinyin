@@ -62,6 +62,7 @@
     <h1>拼音注音闖關</h1>
     <p class="note">海陸腔・依教育部《客家語拼音方案》・看拼音選注音，看注音選拼音<br>例字讀音依教育部臺灣客語辭典・語音來源：GoHakka.org（CC BY-SA 4.0）</p>
     <div class="levels" id="levels"></div>
+    <div id="homerank"></div>
   </div>
 
   <div id="play" class="hidden">
@@ -105,7 +106,7 @@ const 關卡 = [
   {id:"單韻母", 名:"第 2 關　單韻母", 說:"a e i o u 對注音", 題:()=>題庫.單韻母, 數:10},
   {id:"結合韻", 名:"第 3 關　結合韻", 說:"兩隻以上韻母合起來", 題:()=>題庫.結合韻, 數:10},
   {id:"音節", 名:"第 4 關　拼出音節", 說:"聲母＋韻母，整隻音節", 題:()=>題庫.音節, 數:10},
-  {id:"挑戰", 名:"挑戰關", 說:"全部混合 20 題，比答對題數摎速度", 題:()=>[...題庫.聲母,...題庫.單韻母,...題庫.結合韻,...題庫.音節], 數:20},
+  {id:"挑戰", 名:"挑戰關", 說:"混合 20 題，比答對摎速度", 題:()=>[...題庫.聲母,...題庫.單韻母,...題庫.結合韻,...題庫.音節], 數:20},
 ];
 // 常見的錯誤選項:讓學生分清楚
 const 陷阱 = { "e":["ㄟ"], "o":["ㄡ"], "ie":["ㄧㄟ"], "eu":["ㄡ"], "z":["ㄓ"], "c":["ㄔ"], "s":["ㄕ"], "zh":["ㄗ"], "ch":["ㄘ"], "sh":["ㄙ"] };
@@ -121,6 +122,8 @@ const 排行榜網址 = "https://script.google.com/macros/s/AKfycbzPdUYTCwEZYKd_
 async function 讀榜(){ if (!排行榜網址) return null; try { const r = await fetch(排行榜網址 + "?action=list"); return await r.json(); } catch (e) { return null; } }
 function 榜HTML(榜, 我){ return `<div class="board"><h3>🏆 挑戰關排行榜（前十名）</h3>` + (榜 && 榜.length ? `<ol>${榜.map(x => `<li class="${我 && x.名 === 我.名 && x.對 === 我.對 && Math.abs(x.秒 - 我.秒) < 0.6 ? "me" : ""}">${x.名.replace(/[<>&]/g,"")}　${x.對}/20　${秒字(x.秒)}</li>`).join("")}</ol>` : "<div style=\"text-align:center;color:var(--sub)\">還無人上榜，你來做第一名！</div>") + `</div>`; }
 function 排前(a, b){ return b.對 - a.對 || a.秒 - b.秒; }
+// 首頁直接顯示前十名(教師 2026-10-25:學生一打開遊戲就看得到)
+async function 首頁排行(){ if (!排行榜網址) return; const 榜 = await 讀榜(); if (榜) $("homerank").innerHTML = 榜HTML(榜); }
 async function 顯示排行(對, 秒){
   const 區 = $("rank"); 區.innerHTML = ""; if (!排行榜網址) return;
   let 榜 = await 讀榜(); if (!榜) { 區.innerHTML = '<div class="board" style="text-align:center;color:var(--sub)">排行榜暫時連不上。</div>'; return; }
@@ -213,10 +216,11 @@ function 結束(){
   $("miss").innerHTML = 錯.length ? "<b>再看一下：</b>" + 錯.map(q => `<div>${q.拼} ＝ ${q.注}　${q.例 ? "例：" + (q.字||"") + " " + (q.讀||q.例) : ""}${(q.例 in 音檔) ? ` <button class="snd" onclick="播('${q.例}')">🔊</button>` : ""}</div>`).join("") : "";
 }
 $("next").onclick = 下一題;
-$("quit").onclick = $("back").onclick = () => { clearInterval(計時器); $("play").classList.add("hidden"); $("done").classList.add("hidden"); $("home").classList.remove("hidden"); 畫關卡(); };
+$("quit").onclick = $("back").onclick = () => { clearInterval(計時器); $("play").classList.add("hidden"); $("done").classList.add("hidden"); $("home").classList.remove("hidden"); 畫關卡(); 首頁排行(); };
 $("again").onclick = () => 開始(現);
 document.addEventListener("keydown", e => { if (e.key === "Enter" && !$("next").classList.contains("hidden")) 下一題(); });
 畫關卡();
+首頁排行();
 </script>
 </body>
 </html>
