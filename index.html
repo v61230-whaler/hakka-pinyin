@@ -117,7 +117,7 @@ const 提示 = {
 };
 const 記錄鍵 = "拼音注音闖關-最佳";
 // 挑戰關全班排行榜:存在教師的 Google 試算表(Apps Script 網頁應用程式網址)。空字串時不顯示排行榜。
-const 排行榜網址 = "";
+const 排行榜網址 = "https://script.google.com/macros/s/AKfycbzPdUYTCwEZYKd_ZxNAhWHmdM24_DcMve3k2eZjr4PTJ6r893IKSijvcBDBkVjplm2yWA/exec";
 async function 讀榜(){ if (!排行榜網址) return null; try { const r = await fetch(排行榜網址 + "?action=list"); return await r.json(); } catch (e) { return null; } }
 function 榜HTML(榜, 我){ return `<div class="board"><h3>🏆 挑戰關排行榜（前十名）</h3>` + (榜 && 榜.length ? `<ol>${榜.map(x => `<li class="${我 && x.名 === 我.名 && x.對 === 我.對 && Math.abs(x.秒 - 我.秒) < 0.6 ? "me" : ""}">${x.名.replace(/[<>&]/g,"")}　${x.對}/20　${秒字(x.秒)}</li>`).join("")}</ol>` : "<div style=\"text-align:center;color:var(--sub)\">還無人上榜，你來做第一名！</div>") + `</div>`; }
 function 排前(a, b){ return b.對 - a.對 || a.秒 - b.秒; }
