@@ -57,6 +57,31 @@
   .end .score { font-size:3rem; font-weight:bold; color:var(--main); }
   .miss { text-align:left; margin:14px auto 0; max-width:520px; }
   .miss div { padding:8px 4px; border-bottom:1px dashed var(--line); font-size:1.15rem; }
+  .lv.boss { grid-column:1/-1; background:linear-gradient(135deg,#1b1326,#3a1530); border:3px solid #ffc83d; color:#f6efff; padding:20px 22px; box-shadow:0 6px 0 #b3202e; }
+  .lv.boss:hover, .lv.boss:focus { border-color:#ff4d5a; }
+  .lv.boss b { font-size:1.6rem; color:#ffc83d; letter-spacing:.12em; }
+  .lv.boss span { color:#d9cdee; }
+  .lv.boss .best { color:#ffc83d; }
+  .board.boss { background:linear-gradient(160deg,#1b1326,#2c1630); border:3px solid #ffc83d; color:#f6efff; }
+  .board.boss h3 { color:#ffc83d; letter-spacing:.08em; }
+  .board.boss ol { list-style:none; padding:0; }
+  .board.boss li { display:flex; align-items:center; gap:12px; padding:6px 8px; border-radius:10px; }
+  .board.boss .no { flex:none; width:2em; height:2em; line-height:2em; border-radius:50%; text-align:center; background:#3d2f57; color:#d9cdee; font-size:.95rem; }
+  .board.boss .nm { flex:1; }
+  .board.boss .sc { color:#d9cdee; font-size:.95rem; }
+  .board.boss li.r1 { background:rgba(255,200,61,.16); font-size:1.25rem; font-weight:bold; }
+  .board.boss li.r1 .no { background:#ffc83d; color:#3a1530; }
+  .board.boss li.r2 .no { background:#c9d1de; color:#22304a; }
+  .board.boss li.r3 .no { background:#d98a4e; color:#3a1530; }
+  .board.boss li.me { outline:2px solid #ff4d5a; }
+  body.boss { --bg:#150f1e; --card:#241b33; --ink:#f6efff; --sub:#b3a6cc; --main:#ff4d5a; --line:#3d2f57; --ok:#4fd699; --bad:#ff7a85; }
+  body.boss .opt.ok { background:#12382b; }
+  body.boss .opt.bad { background:#431a22; }
+  body.boss .end .score, body.boss .progress i { color:#ffc83d; }
+  body.boss .progress i { background:#ffc83d; }
+  body.boss .join input { background:#150f1e; color:var(--ink); border-color:#ffc83d; }
+  body.boss .btn { background:#ff4d5a; color:#fff; }
+  body.boss .btn.ghost { background:var(--card); color:var(--ink); }
   .hidden { display:none !important; }
   @media (max-width:420px){ .opts { gap:8px; } .opt { min-height:74px; } }
 </style>
@@ -112,7 +137,7 @@ const 關卡 = [
   {id:"單韻母", 名:"第 2 關　單韻母", 說:"a e i o u 對注音", 題:()=>題庫.單韻母, 數:10},
   {id:"結合韻", 名:"第 3 關　結合韻", 說:"兩隻以上韻母合起來", 題:()=>題庫.結合韻, 數:10},
   {id:"音節", 名:"第 4 關　拼出音節", 說:"聲母＋韻母，整隻音節", 題:()=>題庫.音節, 數:10},
-  {id:"挑戰", 名:"挑戰關", 說:"混合 20 題，比答對摎速度", 題:()=>[...題庫.聲母,...題庫.單韻母,...題庫.結合韻,...題庫.音節], 數:20},
+  {id:"挑戰", 名:"👹 魔王關", 說:"最終關：混合 20 題，比答對摎速度", 題:()=>[...題庫.聲母,...題庫.單韻母,...題庫.結合韻,...題庫.音節], 數:20},
 ];
 // 常見的錯誤選項:讓學生分清楚
 const 陷阱 = { "e":["ㄟ"], "o":["ㄡ"], "ie":["ㄧㄟ"], "eu":["ㄡ"], "z":["ㄓ"], "c":["ㄔ"], "s":["ㄕ"], "zh":["ㄗ"], "ch":["ㄘ"], "sh":["ㄙ"] };
@@ -126,7 +151,11 @@ const 記錄鍵 = "拼音注音闖關-最佳";
 // 挑戰關全班排行榜:存在教師的 Google 試算表(Apps Script 網頁應用程式網址)。空字串時不顯示排行榜。
 const 排行榜網址 = "https://script.google.com/macros/s/AKfycbzPdUYTCwEZYKd_ZxNAhWHmdM24_DcMve3k2eZjr4PTJ6r893IKSijvcBDBkVjplm2yWA/exec";
 async function 讀榜(){ if (!排行榜網址) return null; try { const r = await fetch(排行榜網址 + "?action=list"); return await r.json(); } catch (e) { return null; } }
-function 榜HTML(榜, 我){ return `<div class="board"><h3>🏆 挑戰關排行榜（前十名）</h3>` + (榜 && 榜.length ? `<ol>${榜.map(x => `<li class="${我 && x.名 === 我.名 && x.對 === 我.對 && Math.abs(x.秒 - 我.秒) < 0.6 ? "me" : ""}">${x.名.replace(/[<>&]/g,"")}　${x.對}/20　${秒字(x.秒)}</li>`).join("")}</ol>` : "<div style=\"text-align:center;color:var(--sub)\">還無人上榜，你來做第一名！</div>") + `</div>`; }
+function 榜HTML(榜, 我){
+  const 是我 = x => 我 && x.名 === 我.名 && x.對 === 我.對 && Math.abs(x.秒 - 我.秒) < 0.6;
+  const 列 = 榜.map((x, i) => `<li class="r${i+1} ${是我(x) ? "me" : ""}"><b class="no">${i+1}</b><span class="nm">${x.名.replace(/[<>&]/g,"")}</span><span class="sc">${x.對}/20　${秒字(x.秒)}</span></li>`).join("");
+  return `<div class="board boss"><h3>👑 魔王關排行榜（前十名）</h3>` + (榜 && 榜.length ? `<ol>${列}</ol>` : "<div style=\"text-align:center;color:#d9cdee\">還無人打敗魔王，你來做第一名！</div>") + `</div>`;
+}
 function 排前(a, b){ return b.對 - a.對 || a.秒 - b.秒; }
 // 首頁直接顯示前十名(教師 2026-10-25:學生一打開遊戲就看得到)
 async function 首頁排行(){ if (!排行榜網址) return; const 榜 = await 讀榜(); if (榜) $("homerank").innerHTML = 榜HTML(榜); }
@@ -155,13 +184,14 @@ function 像(a,b){ let n=0; for (const ch of a) if (b.includes(ch)) n++; return 
 function 畫關卡(){
   $("levels").innerHTML = "";
   for (const L of 關卡) {
-    const b = document.createElement("button"); b.className = "lv";
+    const b = document.createElement("button"); b.className = "lv" + (L.id === "挑戰" ? " boss" : "");
     const r = 最佳[L.id];
     b.innerHTML = `<b>${L.名}</b><span>${L.說}</span>` + (r ? `<span class="best">最好：${r.對}/${L.數} ・ ${秒字(r.秒)}</span>` : "");
     b.onclick = () => 開始(L); $("levels").appendChild(b);
   }
 }
 function 開始(L){
+  document.body.classList.toggle("boss", L.id === "挑戰");
   現 = L; 題目 = 亂(L.題()).slice(0, L.數).map(x => ({...x, 反: Math.random() < 0.5}));
   第 = 0; 對 = 0; 錯 = []; 開始時 = Date.now();
   $("home").classList.add("hidden"); $("done").classList.add("hidden"); $("play").classList.remove("hidden");
@@ -224,7 +254,7 @@ function 結束(){
   $("miss").innerHTML = 錯.length ? "<b>再看一下：</b>" + 錯.map(q => `<div>${q.拼} ＝ ${q.注}　${q.例 ? "例：" + (q.字||"") + " " + (q.讀||q.例) : ""}${(q.例 in 音檔) ? ` <button class="snd" onclick="播('${q.例}')">🔊</button>` : ""}</div>`).join("") : "";
 }
 $("next").onclick = 下一題;
-$("quit").onclick = $("back").onclick = () => { clearInterval(計時器); $("play").classList.add("hidden"); $("done").classList.add("hidden"); $("home").classList.remove("hidden"); 畫關卡(); 首頁排行(); };
+$("quit").onclick = $("back").onclick = () => { document.body.classList.remove("boss"); clearInterval(計時器); $("play").classList.add("hidden"); $("done").classList.add("hidden"); $("home").classList.remove("hidden"); 畫關卡(); 首頁排行(); };
 $("again").onclick = () => 開始(現);
 document.addEventListener("keydown", e => { if (e.key === "Enter" && !$("next").classList.contains("hidden")) 下一題(); });
 畫關卡();
