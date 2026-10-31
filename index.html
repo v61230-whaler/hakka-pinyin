@@ -138,7 +138,9 @@ async function 顯示排行(對, 秒){
   if (能上榜) $("send").onclick = async () => {
     const 名 = $("nick").value.trim().slice(0, 10); if (!名) { $("nick").focus(); return; }
     $("send").disabled = true; $("send").textContent = "送出中…";
-    try { const r = await fetch(`${排行榜網址}?action=add&name=${encodeURIComponent(名)}&correct=${對}&sec=${秒.toFixed(1)}`); 榜 = await r.json(); } catch (e) {}
+    try { const r = await fetch(`${排行榜網址}?action=add&name=${encodeURIComponent(名)}&correct=${對}&sec=${秒.toFixed(1)}`); const 回 = await r.json();
+      if (回 && 回.錯) { $("send").disabled = false; $("send").textContent = "上榜"; $("nick").value = ""; $("nick").placeholder = "這個暱稱毋好用，請換一個"; $("nick").focus(); return; }
+      榜 = 回; } catch (e) {}
     區.innerHTML = 榜HTML(榜, {名, 對, 秒: +秒.toFixed(1)});
   };
 }
