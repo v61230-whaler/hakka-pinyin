@@ -157,8 +157,8 @@ const 提示 = {
   "sh":"zh、ch、sh、rh 對 ㄓ、ㄔ、ㄕ、ㄖ；z、c、s 對 ㄗ、ㄘ、ㄙ。", "z":"z、c、s 係「原味」，對 ㄗ、ㄘ、ㄙ。", "c":"z、c、s 係「原味」，對 ㄗ、ㄘ、ㄙ。", "s":"z、c、s 係「原味」，對 ㄗ、ㄘ、ㄙ。",
   "rh":"rh 對 ㄖ。", "b":"b 對 ㄅ（毋係 ㄆ）。", "p":"p 對 ㄆ。", "d":"d 對 ㄉ（毋係 ㄊ）。", "t":"t 對 ㄊ。", "g":"g 對 ㄍ（毋係 ㄎ）。", "k":"k 對 ㄎ。",
 };
-// 全班最高紀錄(教師課後提供數據,Claude 更新後重新上傳)。格式:關卡id:{秒:數字}。沒資料的關不顯示。
-const 班紀錄 = { "聲母":{秒:16} };
+// 全班最高紀錄(教師課後提供數據,Claude 更新後重新上傳)。格式:關卡id:{校:"學校名", 秒:數字}。沒資料的關不顯示。
+const 班紀錄 = { "聲母":{校:"金湖國中", 秒:16} };
 const 記錄鍵 = "拼音注音闖關-最佳";
 // 挑戰關全班排行榜:存在教師的 Google 試算表(Apps Script 網頁應用程式網址)。空字串時不顯示排行榜。
 const 排行榜網址 = "https://script.google.com/macros/s/AKfycbzPdUYTCwEZYKd_ZxNAhWHmdM24_DcMve3k2eZjr4PTJ6r893IKSijvcBDBkVjplm2yWA/exec";
@@ -200,7 +200,7 @@ function 畫關卡(){
   for (const L of 關卡) {
     const b = document.createElement("button"); b.className = "lv" + (L.id === "挑戰" ? " boss" : "");
     const r = 最佳[L.id];
-    b.innerHTML = `<b>${L.名}</b><span>${L.說}</span>` + (班紀錄[L.id] ? `<span class="rec">🏅 全班最高紀錄：${班紀錄[L.id].秒} 秒</span>` : "") + (r ? `<span class="best">最好：${r.對}/${L.數} ・ ${秒字(r.秒)}</span>` : "");
+    b.innerHTML = `<b>${L.名}</b><span>${L.說}</span>` + (班紀錄[L.id] ? `<span class="rec">🏅 最高紀錄：${班紀錄[L.id].校} ${班紀錄[L.id].秒} 秒</span>` : "") + (r ? `<span class="best">最好：${r.對}/${L.數} ・ ${秒字(r.秒)}</span>` : "");
     b.onclick = () => 開始(L); $("levels").appendChild(b);
   }
 }
