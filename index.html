@@ -54,7 +54,7 @@
   .opt.ok { background:#e5f6ee; border-color:var(--ok); color:var(--ok); }
   .opt.bad { background:#fbe9e9; border-color:var(--bad); color:var(--bad); }
   .opt:disabled { cursor:default; }
-  .fb { min-height:92px; margin-top:14px; text-align:center; font-size:1.15rem; }
+  .fb { min-height:40px; margin-top:14px; text-align:center; font-size:1.15rem; }
   .fb .res { font-weight:bold; font-size:1.35rem; }
   .fb .res.ok { color:var(--ok); } .fb .res.bad { color:var(--bad); }
   .fb .ex { margin-top:6px; }
@@ -122,7 +122,6 @@
     </div>
     <div class="opts" id="opts"></div>
     <div class="fb" id="fb"></div>
-    <div class="row"><button class="btn hidden" id="next">下一題 →</button></div>
   </div>
 
   <div id="done" class="hidden">
@@ -231,7 +230,7 @@ function 出題(){
   $("prog").style.width = (第/題目.length*100) + "%";
   $("how").textContent = q.反 ? "這隻注音，拼音係？" : "這隻拼音，注音係？";
   $("big").textContent = q.反 ? q.注 : q.拼;
-  $("fb").innerHTML = ""; $("next").classList.add("hidden");
+  $("fb").innerHTML = "";
   $("opts").innerHTML = "";
   for (const v of 選項(q)) {
     const b = document.createElement("button"); b.className = "opt"; b.textContent = v;
@@ -239,19 +238,18 @@ function 出題(){
   }
 }
 function 播(syl){ if (!(syl in 音檔)) return; try { new Audio(音檔[syl]).play(); } catch (e) {} }
+let 轉場 = 0;
 function 作答(b, v, q){
   const 答案 = q.反 ? q.拼 : q.注;
   const 正 = v === 答案;
   for (const o of $("opts").children) { o.disabled = true; if (o.textContent === 答案) o.classList.add("ok"); }
   if (!正) { b.classList.add("bad"); 錯.push(q); } else 對++;
   $("score").textContent = 對;
-  const 例 = q.例 ? `例：<b>${q.字 || ""}</b>　${q.讀 || q.例}` + ((q.例 in 音檔) ? `<button class="snd" onclick="播('${q.例}')">🔊 再聽一擺</button>` : "") : "";
-  $("fb").innerHTML = `<div class="res ${正?"ok":"bad"}">${正 ? "✔ 著咧！" : "✘ 正確答案"}　${q.拼} ＝ ${q.注}</div>`
-    + `<div class="ex">${例}</div>` + (!正 && 提示[q.拼] ? `<div class="tip">${提示[q.拼]}</div>` : "");
+  $("fb").innerHTML = `<div class="res ${正?"ok":"bad"}">${正 ? "✔ 著咧！" : "✘ 愛選綠色个"}</div>`;
   if (q.例) 播(q.例);
-  if (現.id === "挑戰" && 正) setTimeout(下一題, 900); else $("next").classList.remove("hidden");
+  clearTimeout(轉場); 轉場 = setTimeout(下一題, 正 ? 800 : 1500);
 }
-function 下一題(){ 第++; if (第 >= 題目.length) 結束(); else 出題(); }
+function 下一題(){ clearTimeout(轉場); 第++; if (第 >= 題目.length) 結束(); else 出題(); }
 function 結束(){
   $("rank").innerHTML = "";
   clearInterval(計時器);
@@ -267,12 +265,10 @@ function 結束(){
   } else $("endbest").textContent = `最好紀錄：${舊.對}/${題目.length} ・ ${秒字(舊.秒)}`;
   if (現.目標 && 對 === 題目.length && 秒 <= 現.目標) $("endbest").textContent += "　🎯 挑戰成功！";
   if (現.id === "挑戰") 顯示排行(對, 秒);
-  $("miss").innerHTML = 錯.length ? "<b>再看一下：</b>" + 錯.map(q => `<div>${q.拼} ＝ ${q.注}　${q.例 ? "例：" + (q.字||"") + " " + (q.讀||q.例) : ""}${(q.例 in 音檔) ? ` <button class="snd" onclick="播('${q.例}')">🔊</button>` : ""}</div>`).join("") : "";
+  $("miss").innerHTML = 錯.length ? "<b>再看一下：</b>" + 錯.map(q => `<div>${q.拼} ＝ ${q.注}　${q.例 ? "例：" + (q.字||"") + " " + (q.讀||q.例) : ""}${提示[q.拼] ? `<span class="tip" style="display:block;margin-top:4px">${提示[q.拼]}</span>` : ""}${(q.例 in 音檔) ? ` <button class="snd" onclick="播('${q.例}')">🔊</button>` : ""}</div>`).join("") : "";
 }
-$("next").onclick = 下一題;
-$("quit").onclick = $("back").onclick = () => { document.body.classList.remove("boss"); clearInterval(計時器); $("play").classList.add("hidden"); $("done").classList.add("hidden"); $("home").classList.remove("hidden"); 畫關卡(); 首頁排行(); };
+$("quit").onclick = $("back").onclick = () => { clearTimeout(轉場); document.body.classList.remove("boss"); clearInterval(計時器); $("play").classList.add("hidden"); $("done").classList.add("hidden"); $("home").classList.remove("hidden"); 畫關卡(); 首頁排行(); };
 $("again").onclick = () => 開始(現);
-document.addEventListener("keydown", e => { if (e.key === "Enter" && !$("next").classList.contains("hidden")) 下一題(); });
 畫關卡();
 首頁排行();
 </script>
