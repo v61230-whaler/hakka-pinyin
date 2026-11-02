@@ -19,10 +19,10 @@
   .levels .lv:nth-child(even) { align-self:flex-end; }
   .levels .lv.boss { width:100%; align-self:stretch; margin-top:6px; }
   .stage .board { margin:0; max-width:none; position:sticky; top:12px; }
-  @media (max-width:720px){ .stage { grid-template-columns:1fr; } .stage .board { position:static; } }
+  @media (max-width:720px){ .stage { grid-template-columns:1fr; } .levels .lv { width:94%; } .stage .board { position:static; } }
   .lv { background:var(--card); border:3px solid var(--line); border-radius:18px; padding:16px 18px; cursor:pointer; text-align:left; font:inherit; color:inherit; }
   .lv:hover, .lv:focus { border-color:var(--main); outline:none; }
-  .lv b { display:block; font-size:1.25rem; margin-bottom:4px; }
+  .lv b { white-space:nowrap; display:block; font-size:1.25rem; margin-bottom:4px; }
   .lv span { color:var(--sub); font-size:.95rem; }
   .invite { display:flex; align-items:center; gap:14px; margin:0 0 4px; }
   .invite img { width:84px; height:84px; border-radius:50%; border:3px solid var(--main); background:#fff; flex:none; }
@@ -36,7 +36,9 @@
   .board .me { color:var(--main); font-weight:bold; }
   .join { margin-top:14px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
   .join input { font:inherit; font-size:1.1rem; padding:8px 12px; border-radius:12px; border:2px solid var(--line); width:12em; }
-  .lv .rec { display:block; margin-top:8px; color:#a8741a; font-weight:bold; font-size:.95rem; }
+  .lv { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .lv .rec { flex:none; text-align:center; color:#a8741a; font-weight:bold; font-size:.85rem; line-height:1.3; background:#fff4d6; border:2px solid #e6c46a; border-radius:12px; padding:3px 8px; white-space:nowrap; }
+  .lv .rec em { display:block; font-style:normal; color:#b3202e; font-size:.8rem; }
   .lv .best { display:block; margin-top:8px; color:var(--main); font-weight:bold; font-size:.95rem; }
   .bar { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; font-weight:bold; }
   .pill { background:var(--card); border:2px solid var(--line); border-radius:999px; padding:6px 14px; }
@@ -157,7 +159,7 @@ const 提示 = {
   "sh":"zh、ch、sh、rh 對 ㄓ、ㄔ、ㄕ、ㄖ；z、c、s 對 ㄗ、ㄘ、ㄙ。", "z":"z、c、s 係「原味」，對 ㄗ、ㄘ、ㄙ。", "c":"z、c、s 係「原味」，對 ㄗ、ㄘ、ㄙ。", "s":"z、c、s 係「原味」，對 ㄗ、ㄘ、ㄙ。",
   "rh":"rh 對 ㄖ。", "b":"b 對 ㄅ（毋係 ㄆ）。", "p":"p 對 ㄆ。", "d":"d 對 ㄉ（毋係 ㄊ）。", "t":"t 對 ㄊ。", "g":"g 對 ㄍ（毋係 ㄎ）。", "k":"k 對 ㄎ。",
 };
-// 全班最高紀錄(教師課後提供數據,Claude 更新後重新上傳)。格式:關卡id:{校:"學校名", 秒:數字}。沒資料的關不顯示。
+// Top 1 紀錄(教師課後提供數據,Claude 更新後重新上傳)。格式:關卡id:{校:"學校名", 秒:數字}。沒資料的關不顯示。
 const 班紀錄 = { "聲母":{校:"金湖國中", 秒:16} };
 const 記錄鍵 = "拼音注音闖關-最佳";
 // 挑戰關全班排行榜:存在教師的 Google 試算表(Apps Script 網頁應用程式網址)。空字串時不顯示排行榜。
@@ -200,7 +202,7 @@ function 畫關卡(){
   for (const L of 關卡) {
     const b = document.createElement("button"); b.className = "lv" + (L.id === "挑戰" ? " boss" : "");
     const r = 最佳[L.id];
-    b.innerHTML = `<b>${L.名}</b><span>${L.說}</span>` + (班紀錄[L.id] ? `<span class="rec">🏅 最高紀錄：${班紀錄[L.id].校} ${班紀錄[L.id].秒} 秒</span>` : "") + (r ? `<span class="best">最好：${r.對}/${L.數} ・ ${秒字(r.秒)}</span>` : "");
+    b.innerHTML = `<div class="lt"><b>${L.名}</b><span>${L.說}</span>` + (r ? `<span class="best">最好：${r.對}/${L.數} ・ ${秒字(r.秒)}</span>` : "") + `</div>` + (班紀錄[L.id] ? `<div class="rec"><em>🏅 Top 1</em>${班紀錄[L.id].校} ${班紀錄[L.id].秒}秒</div>` : "");
     b.onclick = () => 開始(L); $("levels").appendChild(b);
   }
 }
