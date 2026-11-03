@@ -67,6 +67,24 @@
   .end .score { font-size:3rem; font-weight:bold; color:var(--main); }
   .miss { text-align:left; margin:14px auto 0; max-width:520px; }
   .miss div { padding:8px 4px; border-bottom:1px dashed var(--line); font-size:1.15rem; }
+  /* 矮螢幕(手機有網址列、嵌在網站裡、橫放):作答畫面縮緊,一個畫面放得下不用捲動 */
+  @media (max-height:620px){
+    .wrap.playing { padding-top:8px; padding-bottom:8px; }
+    #play .bar { margin-bottom:6px; } #play .btn.ghost { padding:6px 12px; font-size:1rem; }
+    #play .pill { padding:3px 10px; }
+    #play .progress { margin-bottom:8px; height:8px; }
+    #play .ask { padding:8px 12px; border-width:2px; }
+    #play .ask .big { font-size:clamp(2.2rem,min(11vw,11vh),4rem); margin:2px 0; }
+    #play .opts { margin-top:8px; gap:8px; }
+    #play .opt { min-height:0; padding:8px 6px; font-size:clamp(1.4rem,min(6vw,6.5vh),2.2rem); border-width:2px; }
+    #play .fb { min-height:26px; margin-top:6px; font-size:1rem; } #play .fb .res { font-size:1.1rem; }
+  }
+  @media (max-height:430px) and (min-width:500px){
+    #play .play-body { display:grid; grid-template-columns:1fr 1.2fr; gap:10px; align-items:center; }
+    #play .opts { margin-top:0; } #play .fb { grid-column:1 / -1; margin-top:0; }
+  }
+  #play .bar > * { white-space:nowrap; }
+  @media (max-width:420px){ #play .bar { gap:6px; font-size:.9rem; } #play .btn.ghost { padding:6px 10px; font-size:.9rem; } #play .pill { padding:4px 9px; } #play #lvname { display:none; } }
   .lv.boss { background:linear-gradient(135deg,#1b1326,#3a1530); border:3px solid #ffc83d; color:#f6efff; padding:20px 22px; box-shadow:0 6px 0 #b3202e; }
   .lv.boss:hover, .lv.boss:focus { border-color:#ff4d5a; }
   .lv.boss b { font-size:1.6rem; color:#ffc83d; letter-spacing:.12em; }
@@ -116,12 +134,14 @@
       <span class="pill">✔ <span id="score">0</span></span>
     </div>
     <div class="progress"><i id="prog"></i></div>
-    <div class="ask">
-      <div class="how" id="how"></div>
-      <div class="big" id="big"></div>
+    <div class="play-body">
+      <div class="ask">
+        <div class="how" id="how"></div>
+        <div class="big" id="big"></div>
+      </div>
+      <div class="opts" id="opts"></div>
+      <div class="fb" id="fb"></div>
     </div>
-    <div class="opts" id="opts"></div>
-    <div class="fb" id="fb"></div>
   </div>
 
   <div id="done" class="hidden">
@@ -209,7 +229,7 @@ function 開始(L){
   document.body.classList.toggle("boss", L.id === "挑戰");
   現 = L; 題目 = 亂(L.題()).slice(0, L.數).map(x => ({...x, 反: Math.random() < 0.5}));
   第 = 0; 對 = 0; 錯 = []; 開始時 = Date.now();
-  $("home").classList.add("hidden"); $("done").classList.add("hidden"); $("play").classList.remove("hidden");
+  $("home").classList.add("hidden"); $("done").classList.add("hidden"); $("play").classList.remove("hidden"); document.querySelector(".wrap").classList.add("playing"); window.scrollTo(0,0);
   $("lvname").textContent = L.名;
   clearInterval(計時器); 計時器 = setInterval(() => $("clock").textContent = 秒字((Date.now()-開始時)/1000), 250);
   出題();
@@ -254,7 +274,7 @@ function 結束(){
   $("rank").innerHTML = "";
   clearInterval(計時器);
   const 秒 = (Date.now()-開始時)/1000;
-  $("play").classList.add("hidden"); $("done").classList.remove("hidden");
+  $("play").classList.add("hidden"); $("done").classList.remove("hidden"); document.querySelector(".wrap").classList.remove("playing");
   $("endtitle").textContent = 現.名;
   $("endscore").textContent = `${對} / ${題目.length}`;
   $("endtime").textContent = "用咧 " + 秒字(秒) + (現.目標 ? `（目標 ${秒字(現.目標)}）` : "");
@@ -267,7 +287,7 @@ function 結束(){
   if (現.id === "挑戰") 顯示排行(對, 秒);
   $("miss").innerHTML = 錯.length ? "<b>再看一下：</b>" + 錯.map(q => `<div>${q.拼} ＝ ${q.注}　${q.例 ? "例：" + (q.字||"") + " " + (q.讀||q.例) : ""}${提示[q.拼] ? `<span class="tip" style="display:block;margin-top:4px">${提示[q.拼]}</span>` : ""}${(q.例 in 音檔) ? ` <button class="snd" onclick="播('${q.例}')">🔊</button>` : ""}</div>`).join("") : "";
 }
-$("quit").onclick = $("back").onclick = () => { clearTimeout(轉場); document.body.classList.remove("boss"); clearInterval(計時器); $("play").classList.add("hidden"); $("done").classList.add("hidden"); $("home").classList.remove("hidden"); 畫關卡(); 首頁排行(); };
+$("quit").onclick = $("back").onclick = () => { clearTimeout(轉場); document.querySelector(".wrap").classList.remove("playing"); document.body.classList.remove("boss"); clearInterval(計時器); $("play").classList.add("hidden"); $("done").classList.add("hidden"); $("home").classList.remove("hidden"); 畫關卡(); 首頁排行(); };
 $("again").onclick = () => 開始(現);
 畫關卡();
 首頁排行();
