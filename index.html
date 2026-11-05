@@ -221,13 +221,17 @@ function 畫關卡(){
   for (const L of 關卡) {
     const b = document.createElement("button"); b.className = "lv" + (L.id === "挑戰" ? " boss" : "");
     const r = 最佳[L.id];
-    b.innerHTML = `<div class="lt"><b>${L.名}</b><span>${L.說}</span>` + (r ? `<span class="best">最好：${r.對}/${Math.min(L.數, L.題().length)} ・ ${秒字(r.秒)}</span>` : "") + `</div>` + (班紀錄[L.id] ? `<div class="rec"><em>🏅 Top 1</em>${班紀錄[L.id].校} ${班紀錄[L.id].秒}秒</div>` : "");
+    b.innerHTML = `<div class="lt"><b>${L.名}</b><span>${L.說}</span>` + (r ? `<span class="best">最好：${r.對}/${L.數} ・ ${秒字(r.秒)}</span>` : "") + `</div>` + (班紀錄[L.id] ? `<div class="rec"><em>🏅 Top 1</em>${班紀錄[L.id].校} ${班紀錄[L.id].秒}秒</div>` : "");
     b.onclick = () => 開始(L); $("levels").appendChild(b);
   }
 }
 function 開始(L){
   document.body.classList.toggle("boss", L.id === "挑戰");
-  現 = L; 題目 = 亂(L.題()).slice(0, L.數).map(x => ({...x, 反: Math.random() < 0.5}));
+  現 = L;
+  // 題庫不夠(單韻母只有 5 個)就輪流重複出,接縫處避免連著出同一題
+  let 池 = 亂(L.題()); const 全 = [...池];
+  while (池.length < L.數) { let 下 = 亂(全); if (下[0].拼 === 池[池.length-1].拼 && 下.length > 1) 下.push(下.shift()); 池 = 池.concat(下); }
+  題目 = 池.slice(0, L.數).map(x => ({...x, 反: Math.random() < 0.5}));
   第 = 0; 對 = 0; 錯 = []; 開始時 = Date.now();
   $("home").classList.add("hidden"); $("done").classList.add("hidden"); $("play").classList.remove("hidden"); document.querySelector(".wrap").classList.add("playing"); window.scrollTo(0,0);
   $("lvname").textContent = L.名;
