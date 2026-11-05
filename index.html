@@ -221,7 +221,7 @@ function 畫關卡(){
   for (const L of 關卡) {
     const b = document.createElement("button"); b.className = "lv" + (L.id === "挑戰" ? " boss" : "");
     const r = 最佳[L.id];
-    b.innerHTML = `<div class="lt"><b>${L.名}</b><span>${L.說}</span>` + (r ? `<span class="best">最好：${r.對}/${L.數} ・ ${秒字(r.秒)}</span>` : "") + `</div>` + (班紀錄[L.id] ? `<div class="rec"><em>🏅 Top 1</em>${班紀錄[L.id].校} ${班紀錄[L.id].秒}秒</div>` : "");
+    b.innerHTML = `<div class="lt"><b>${L.名}</b><span>${L.說}</span>` + (r ? `<span class="best">最好：${r.對}/${Math.min(L.數, L.題().length)} ・ ${秒字(r.秒)}</span>` : "") + `</div>` + (班紀錄[L.id] ? `<div class="rec"><em>🏅 Top 1</em>${班紀錄[L.id].校} ${班紀錄[L.id].秒}秒</div>` : "");
     b.onclick = () => 開始(L); $("levels").appendChild(b);
   }
 }
