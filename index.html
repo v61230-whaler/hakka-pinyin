@@ -50,7 +50,7 @@
   .opts { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
   .opt { font:inherit; font-size:clamp(1.8rem,7vw,2.8rem); font-weight:bold; padding:16px 8px; border-radius:18px; border:3px solid var(--line);
     background:var(--card); color:var(--ink); cursor:pointer; min-height:86px; }
-  .opt:hover:not(:disabled) { border-color:var(--main); }
+  @media (hover:hover) and (pointer:fine) { .opt:hover:not(:disabled) { border-color:var(--sub); } }
   .opt.ok { background:#e5f6ee; border-color:var(--ok); color:var(--ok); }
   .opt.bad { background:#fbe9e9; border-color:var(--bad); color:var(--bad); }
   .opt:disabled { cursor:default; }
