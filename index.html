@@ -188,7 +188,7 @@ function 榜HTML(榜, 我){
   const 列 = Array.from({length:10}, (_, i) => { const x = (榜 || [])[i];
     return x ? `<li class="r${i+1} ${是我(x) ? "me" : ""}"><b class="no">${i+1}</b><span class="nm">${x.名.replace(/[<>&]/g,"")}</span><span class="sc">${x.對}/20　${秒字(x.秒)}</span></li>`
              : `<li class="r${i+1}"><b class="no">${i+1}</b><span class="nm"></span><span class="sc"></span></li>`; }).join("");
-  return `<div class="board boss"><h3>👑 魔王關排行榜（前十名）</h3><ol>${列}</ol></div>`;
+  return `<div class="board boss"><h3>👑 魔王關排行榜</h3><ol>${列}</ol></div>`;
 }
 function 排前(a, b){ return b.對 - a.對 || a.秒 - b.秒; }
 // 首頁直接顯示前十名(教師 2026-10-25:學生一打開遊戲就看得到)
